@@ -167,6 +167,7 @@ export function Terminal() {
                     <p>virusrpi [Version 1.0]</p>
                     <p>(c) 2023 virusrpi Corporation. All rights reserved.</p>
                 </div>
+                 <br />
                 <div>
                     {commandHistory.map((historyItem, i) => (
                         <div key={i}>{historyItem}</div>

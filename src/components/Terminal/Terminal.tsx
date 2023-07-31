@@ -1,29 +1,10 @@
 import React, { useState } from "react";
-
-type TreeType = {
-    [key: string]: TreeType | JSX.Element;
-}
+import {TreeType, tree} from "./tree";
 
 export function Terminal() {
-    const [commandHistory, setCommandHistory] = useState<string[]>([]);
+    const [commandHistory, setCommandHistory] = useState<JSX.Element[]>([]);
     const [currentCommand, setCurrentCommand] = useState<string>("");
     const [currentDirectory, setCurrentDirectory] = useState<string>("~");
-    const tree: TreeType = {
-        "~": {
-            "projects":
-                {
-                    "MPI.txt": <p>mpi</p>,
-                    "SpaceInvader.txt": <p>space invader</p>,
-                },
-            "contact.txt": <p>contact</p>,
-            "about.txt": <p>about</p>,
-            "minecraft.txt": <p>minecraft</p>,
-            "blog":
-                {
-                },
-            "resume.txt": <p>resume</p>,
-        }
-    };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCurrentCommand(event.target.value);
@@ -37,10 +18,10 @@ export function Terminal() {
 
     function handleCat(args: string[]) {
         if (args.length === 0) {
-            setCommandHistory((prevHistory) => [...prevHistory, "cat: missing operand"]);
+            setCommandHistory((prevHistory) => [...prevHistory, <p>cat: missing operand</p>]);
         }
         if (args.length > 1) {
-            setCommandHistory((prevHistory) => [...prevHistory, "cat: too many arguments"]);
+            setCommandHistory((prevHistory) => [...prevHistory, <p>cat: too many arguments</p>]);
         }
         if (args.length === 1) {
             const segments = currentDirectory.split('/').filter((segment) => segment !== '');
@@ -59,28 +40,27 @@ export function Terminal() {
             const isFileExists = possibleFiles.includes(args[0]);
             if (isFileExists) {
                 const fileContent = currentTree[args[0]] as JSX.Element;
-                const fileContentString = fileContent.props.children as string;
                 setCommandHistory((prevHistory) => [
                     ...prevHistory,
-                    fileContentString,
+                    fileContent,
                 ]);
             } else {
-                setCommandHistory((prevHistory) => [...prevHistory, `cat: ${args[0]}: No such file or directory`]);
+                setCommandHistory((prevHistory) => [...prevHistory, <p>cat: {args[0]}: No such file or directory</p>]);
             }
         }
     }
 
     function handleCd(args: string[]) {
         if (args.length === 0) {
-            setCommandHistory((prevHistory) => [...prevHistory, "cd: missing operand"]);
+            setCommandHistory((prevHistory) => [...prevHistory, <p>cd: missing operand</p>]);
         }
         if (args.length > 1) {
-            setCommandHistory((prevHistory) => [...prevHistory, "cd: too many arguments"]);
+            setCommandHistory((prevHistory) => [...prevHistory, <p>cd: too many arguments</p>]);
         }
         if (args.length === 1) {
             if (args[0] === "..") {
                 if (currentDirectory === "~") {
-                    setCommandHistory((prevHistory) => [...prevHistory, "cd: cannot access '..': No such file or directory"]);
+                    setCommandHistory((prevHistory) => [...prevHistory, <p>cd: cannot access '..': No such file or directory</p>]);
                 }
                 setCurrentDirectory((prevDirectory) => {
                     const directories = prevDirectory.split("/");
@@ -111,7 +91,7 @@ export function Terminal() {
                 if (isDirectoryExists) {
                     setCurrentDirectory(newDirectory);
                 } else {
-                    setCommandHistory((prevHistory) => [...prevHistory, `cd: ${args[0]}: No such file or directory`]);
+                    setCommandHistory((prevHistory) => [...prevHistory, <p>cd: {args[0]}: No such file or directory</p>]);
                 }
             }
         }
@@ -137,7 +117,7 @@ export function Terminal() {
 
     const executeCommand = () => {
         if (currentCommand.trim() !== "") {
-            setCommandHistory((prevHistory) => [...prevHistory, "virusrpi@virusrpi:~$    " + currentCommand]);
+            setCommandHistory((prevHistory) => [...prevHistory, <p>virusrpi@virusrpi:~$    {currentCommand}</p>]);
             setCurrentCommand("");
 
             const [command, ...args] = currentCommand.trim().split(" ");
@@ -147,7 +127,7 @@ export function Terminal() {
                     const filesAndDirs = findFilesAndDirs(tree, currentDirectory);
                     setCommandHistory((prevHistory) => [
                         ...prevHistory,
-                        filesAndDirs,
+                        <p>{filesAndDirs}</p>,
                     ]);
                     break;
                 case "clear":
@@ -162,32 +142,34 @@ export function Terminal() {
                 case "help":
                     setCommandHistory((prevHistory) => [
                         ...prevHistory,
-                        "ls - list projects",
-                        "clear - clear the screen",
-                        "help - this help message",
-                        "cd - change directory",
-                        "cat - print file contents",
+                        <>
+                            <p>ls - list projects</p>,
+                            <p>clear - clear the screen</p>
+                            <p>help - this help message</p>
+                            <p>cd - change directory</p>
+                            <p>cat - print file contents</p>
+                        </>
                     ]);
                     break;
                 default:
                     setCommandHistory((prevHistory) => [
                         ...prevHistory,
-                        `Command not found: ${command}`,
+                        <p>Command not found: {command}</p>,
                     ]);
             }
         }
     };
 
     return (
-        <div className="bg-black min-h-screen w-full p-4">
+        <div className="bg-black min-h-screen w-full p-4 text-left left-1">
              <div className="text-green-700">
                 <div>
                     <p>virusrpi [Version 1.0]</p>
                     <p>(c) 2023 virusrpi Corporation. All rights reserved.</p>
                 </div>
                 <div>
-                    {commandHistory.map((command, index) => (
-                        <p key={index} className="leading-tight">{command}</p>
+                    {commandHistory.map((historyItem, i) => (
+                        <div key={i}>{historyItem}</div>
                     ))}
                 </div>
                 <div className="flex">

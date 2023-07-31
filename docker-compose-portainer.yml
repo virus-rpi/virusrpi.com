@@ -1,0 +1,6 @@
+services:
+  frontend:
+    image: localhost:5000/virusrpi-frontend:latest
+    ports:
+      - 10520:3000
+    restart: always
